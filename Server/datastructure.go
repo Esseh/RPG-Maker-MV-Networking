@@ -24,3 +24,5 @@ type Player struct{
 // This can be used to find a list of players in the same map.
 // ==============================================================================
 var Maps map[int64](map[string]Player) 
+
+var MetaBlob map[string](map[string](map[string](map[string](map[string](string)))))

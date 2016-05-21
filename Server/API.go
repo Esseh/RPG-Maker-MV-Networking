@@ -166,3 +166,52 @@ func TimeOut(){
 		}	
 	}
 }
+
+/*  ==================================================
+	Method: POST
+	Handler: /MetaBlob/Post/:owner/:purpose/:primarykey/:client/:secondarykey/:input
+	Results: NONE
+	Description: Places metadata into the MetaBlob
+	=================================================*/
+func MetaBlobEntry(res http.ResponseWriter, _ *http.Request, ps httprouter.Params){
+	owner        := ps.ByName("owner")
+	purpose      := ps.ByName("purpose")
+	primarykey   := ps.ByName("primarykey")
+	client       := ps.ByName("client")
+	secondarykey := ps.ByName("secondarykey")
+	input        := ps.ByName("input")
+	if(len(MetaBlob[owner])==0){ MetaBlob[owner]=make(map[string](map[string](map[string](map[string](string)))))}
+	if(len(MetaBlob[owner][purpose])==0){MetaBlob[owner][purpose]=make(map[string](map[string](map[string](string))))}
+	if(len(MetaBlob[owner][purpose][primarykey])==0){MetaBlob[owner][purpose][primarykey]=make(map[string](map[string](string)))}
+	if(len(MetaBlob[owner][purpose][primarykey][client])==0){MetaBlob[owner][purpose][primarykey][client] = make(map[string](string))}
+	MetaBlob[owner][purpose][primarykey][client][secondarykey] = input
+}
+
+/*
+	This Collection of GET commands will extract the level as JSON
+	router.GET("/MetaBlob/Get/:owner",BlobOwners)
+	router.GET("/MetaBlob/Get/:owner/:purpose",BlobPurpose)
+	router.GET("/MetaBlob/Get/:owner/:purpose/:primarykey",BlobPrimaryKey)
+	router.GET("/MetaBlob/Get/:owner/:purpose/:primarykey/:client",BlobClient)
+	router.GET("/MetaBlob/Get/:owner/:purpose/:primarykey/:client/:secondarykey",BlobSecondaryKey)
+*/
+func BlobOwners(res http.ResponseWriter, _ *http.Request, ps httprouter.Params){
+	v,_ := json.Marshal(MetaBlob[ps.ByName("owner")])
+	fmt.Fprint(res,string(v))
+}
+func BlobPurpose(res http.ResponseWriter, _ *http.Request, ps httprouter.Params){
+	v,_ := json.Marshal(MetaBlob[ps.ByName("owner")][ps.ByName("purpose")])
+	fmt.Fprint(res,string(v))
+}
+func BlobPrimaryKey(res http.ResponseWriter, _ *http.Request, ps httprouter.Params){
+	v,_ := json.Marshal(MetaBlob[ps.ByName("owner")][ps.ByName("purpose")][ps.ByName("primarykey")])
+	fmt.Fprint(res,string(v))
+}
+func BlobClient(res http.ResponseWriter, _ *http.Request, ps httprouter.Params){
+	v,_ := json.Marshal(MetaBlob[ps.ByName("owner")][ps.ByName("purpose")][ps.ByName("primarykey")][ps.ByName("client")])
+	fmt.Fprint(res,string(v))
+}
+func BlobSecondaryKey(res http.ResponseWriter, _ *http.Request, ps httprouter.Params){
+	v,_ := json.Marshal(MetaBlob[ps.ByName("owner")][ps.ByName("purpose")][ps.ByName("primarykey")][ps.ByName("client")][ps.ByName("secondarykey")])
+	fmt.Fprint(res,string(v))
+}
