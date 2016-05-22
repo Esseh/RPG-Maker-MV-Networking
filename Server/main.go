@@ -48,7 +48,7 @@ func init(){
 	// Retrieves the Client server Variables States
 	router.GET("/variables/",GetVariables)
 	// Assigns to a switch state
-	router.POST("/switches/:id/:value",SetSwitch)
+	router.GET("/switches/:id/:value",SetSwitch)
 	// Assigns to a variable state
 	router.POST("/variables/:id/:value",SetVariable)
 	http.Handle("/", router)
