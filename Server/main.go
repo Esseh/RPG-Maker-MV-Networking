@@ -11,9 +11,8 @@ import (
 // Refer to API.go for specifics.
 // ==============================
 func init(){
-	// Initialize Maps Container and MetaBlob
-	Maps = make(map[int64](map[string]Player))
-	MetaBlob = make(map[string](map[string](map[string](map[string](map[string](string))))))
+	// Initialize Containers
+	InitializeMaps()
 	// Initialize Julien Schmidt Router
 	router := httprouter.New()
 	// Begin the Time Out Handler
@@ -32,12 +31,25 @@ func init(){
 	/*=============
 	 MetaBlob stuff
 	==============*/
-	router.POST("/MetaBlob/Post/:owner/:purpose/:primarykey/:client/:secondarykey/:input",MetaBlobEntry)
+	router.POST("/MetaBlob/Post/:owner/:purpose/:client/:primarykey/:secondarykey/:input",MetaBlobEntry)
+	router.POST("/MetaBlob/Delete/:owner/:purpose/:client/:primarykey/:secondarykey",MetaBlobDeleteEntry)
+	router.POST("/MetaBlob/Delete/:owner/:purpose/:client/:primarykey",MetaBlobDeletePrimary)
+	router.POST("/MetaBlob/Delete/:owner/:purpose/:client",MetaBlobDeleteClient)
+	router.POST("/MetaBlob/Delete/:owner/:purpose",MetaBlobDeletePurpose)
+	router.POST("/MetaBlob/Delete/:owner",MetaBlobDeleteOwner)
 	router.GET("/MetaBlob/Get/:owner",BlobOwners)
 	router.GET("/MetaBlob/Get/:owner/:purpose",BlobPurpose)
-	router.GET("/MetaBlob/Get/:owner/:purpose/:primarykey",BlobPrimaryKey)
-	router.GET("/MetaBlob/Get/:owner/:purpose/:primarykey/:client",BlobClient)
-	router.GET("/MetaBlob/Get/:owner/:purpose/:primarykey/:client/:secondarykey",BlobSecondaryKey)
+	router.GET("/MetaBlob/Get/:owner/:purpose/:client",BlobPrimaryKey)
+	router.GET("/MetaBlob/Get/:owner/:purpose/:client/:primarykey",BlobClient)
+	router.GET("/MetaBlob/Get/:owner/:purpose/:client/:primarykey/:secondarykey",BlobSecondaryKey)
 	//==============
+	// Retrieves the Client Server Switch States
+	router.GET("/switches/",GetSwitches)
+	// Retrieves the Client server Variables States
+	router.GET("/variables/",GetVariables)
+	// Assigns to a switch state
+	router.POST("/switches/:id/:value",SetSwitch)
+	// Assigns to a variable state
+	router.POST("/variables/:id/:value",SetVariable)
 	http.Handle("/", router)
 }

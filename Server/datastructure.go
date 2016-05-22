@@ -24,5 +24,13 @@ type Player struct{
 // This can be used to find a list of players in the same map.
 // ==============================================================================
 var Maps map[int64](map[string]Player) 
-
+// ==============================================================================
+// This is a way for third party scripters to store and retrieve data.
+// ==============================================================================
 var MetaBlob map[string](map[string](map[string](map[string](map[string](string)))))
+// ==============================================================================
+// Switches and Variable Container
+// Used for Consistency with Client
+// ==============================================================================
+var GameSwitches map[string]bool
+var GameVariable map[string]int64

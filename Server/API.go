@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"strconv"
 	"time"
+	"io/ioutil"
 )
 
 /*  ==================================================
@@ -182,18 +183,43 @@ func MetaBlobEntry(res http.ResponseWriter, _ *http.Request, ps httprouter.Param
 	input        := ps.ByName("input")
 	if(len(MetaBlob[owner])==0){ MetaBlob[owner]=make(map[string](map[string](map[string](map[string](string)))))}
 	if(len(MetaBlob[owner][purpose])==0){MetaBlob[owner][purpose]=make(map[string](map[string](map[string](string))))}
-	if(len(MetaBlob[owner][purpose][primarykey])==0){MetaBlob[owner][purpose][primarykey]=make(map[string](map[string](string)))}
-	if(len(MetaBlob[owner][purpose][primarykey][client])==0){MetaBlob[owner][purpose][primarykey][client] = make(map[string](string))}
-	MetaBlob[owner][purpose][primarykey][client][secondarykey] = input
+	if(len(MetaBlob[owner][purpose][client])==0){MetaBlob[owner][purpose][client]=make(map[string](map[string](string)))}
+	if(len(MetaBlob[owner][purpose][client][primarykey])==0){MetaBlob[owner][purpose][client][primarykey] = make(map[string](string))}
+	MetaBlob[owner][purpose][client][primarykey][secondarykey] = input
 }
 
+/*
+	This collection of POST calls will delete levels of the MetaBlob to be GC.
+	
+	router.POST("/MetaBlob/Delete/:owner/:purpose/:client/:primarykey/:secondarykey",MetaBlobDeleteEntry)
+	router.POST("/MetaBlob/Delete/:owner/:purpose/:client/:primarykey",MetaBlobDeletePrimary)
+	router.POST("/MetaBlob/Delete/:owner/:purpose/:client",MetaBlobDeleteClient)
+	router.POST("/MetaBlob/Delete/:owner/:purpose",MetaBlobDeletePurpose)
+	router.POST("/MetaBlob/Delete/:owner",MetaBlobDeleteOwner)
+*/
+
+func MetaBlobDeleteEntry(res http.ResponseWriter, _ *http.Request, ps httprouter.Params){
+	delete(MetaBlob[ps.ByName("owner")][ps.ByName("purpose")][ps.ByName("client")][ps.ByName("primarykey")],ps.ByName("secondarykey"))
+}
+func MetaBlobDeletePrimary(res http.ResponseWriter, _ *http.Request, ps httprouter.Params){
+	delete(MetaBlob[ps.ByName("owner")][ps.ByName("purpose")][ps.ByName("client")],ps.ByName("primarykey"))
+}
+func MetaBlobDeleteClient(res http.ResponseWriter, _ *http.Request, ps httprouter.Params){
+	delete(MetaBlob[ps.ByName("owner")][ps.ByName("purpose")],ps.ByName("client"))
+}
+func MetaBlobDeletePurpose(res http.ResponseWriter, _ *http.Request, ps httprouter.Params){
+	delete(MetaBlob[ps.ByName("owner")],ps.ByName("purpose"))
+}
+func MetaBlobDeleteOwner(res http.ResponseWriter, _ *http.Request, ps httprouter.Params){
+	delete(MetaBlob,ps.ByName("owner"))
+}
 /*
 	This Collection of GET commands will extract the level as JSON
 	router.GET("/MetaBlob/Get/:owner",BlobOwners)
 	router.GET("/MetaBlob/Get/:owner/:purpose",BlobPurpose)
-	router.GET("/MetaBlob/Get/:owner/:purpose/:primarykey",BlobPrimaryKey)
-	router.GET("/MetaBlob/Get/:owner/:purpose/:primarykey/:client",BlobClient)
-	router.GET("/MetaBlob/Get/:owner/:purpose/:primarykey/:client/:secondarykey",BlobSecondaryKey)
+	router.GET("/MetaBlob/Get/:owner/:purpose/:client",BlobPrimaryKey)
+	router.GET("/MetaBlob/Get/:owner/:purpose/:client/:primarykey",BlobClient)
+	router.GET("/MetaBlob/Get/:owner/:purpose/:client/:primarykey/:secondarykey",BlobSecondaryKey)
 */
 func BlobOwners(res http.ResponseWriter, _ *http.Request, ps httprouter.Params){
 	v,_ := json.Marshal(MetaBlob[ps.ByName("owner")])
@@ -204,14 +230,92 @@ func BlobPurpose(res http.ResponseWriter, _ *http.Request, ps httprouter.Params)
 	fmt.Fprint(res,string(v))
 }
 func BlobPrimaryKey(res http.ResponseWriter, _ *http.Request, ps httprouter.Params){
-	v,_ := json.Marshal(MetaBlob[ps.ByName("owner")][ps.ByName("purpose")][ps.ByName("primarykey")])
+	v,_ := json.Marshal(MetaBlob[ps.ByName("owner")][ps.ByName("purpose")][ps.ByName("client")])
 	fmt.Fprint(res,string(v))
 }
 func BlobClient(res http.ResponseWriter, _ *http.Request, ps httprouter.Params){
-	v,_ := json.Marshal(MetaBlob[ps.ByName("owner")][ps.ByName("purpose")][ps.ByName("primarykey")][ps.ByName("client")])
+	v,_ := json.Marshal(MetaBlob[ps.ByName("owner")][ps.ByName("purpose")][ps.ByName("client")][ps.ByName("primarykey")])
 	fmt.Fprint(res,string(v))
 }
 func BlobSecondaryKey(res http.ResponseWriter, _ *http.Request, ps httprouter.Params){
-	v,_ := json.Marshal(MetaBlob[ps.ByName("owner")][ps.ByName("purpose")][ps.ByName("primarykey")][ps.ByName("client")][ps.ByName("secondarykey")])
+	v,_ := json.Marshal(MetaBlob[ps.ByName("owner")][ps.ByName("purpose")][ps.ByName("client")][ps.ByName("primarykey")][ps.ByName("secondarykey")])
 	fmt.Fprint(res,string(v))
+}
+
+/*  ==================================================
+	Method: GET
+	Handler: /switches/
+	Results: JSON
+	Description: Grabs the universal switch state.
+	=================================================*/
+func GetSwitches(res http.ResponseWriter, req *http.Request, ps httprouter.Params){
+	if(len(GameSwitches) == 0){
+		data , err := ioutil.ReadFile("files/Switches.ini")
+		err2 := json.Unmarshal(data,&GameSwitches)
+		HandleError(res,err,err2)
+	}
+	v,_ := json.Marshal(GameSwitches)
+	fmt.Fprint(res,string(v))
+}
+/*  ==================================================
+	Method: GET
+	Handler: /variables/
+	Results: JSON
+	Description: Grabs the universal variable state.
+	=================================================*/
+func GetVariables(res http.ResponseWriter, req *http.Request, ps httprouter.Params){
+	if(len(GameVariable) == 0){
+		data , err := ioutil.ReadFile("files/Variables.ini")
+		err2 := json.Unmarshal(data,&GameVariable)
+		HandleError(res,err,err2)
+	}
+	v,_ := json.Marshal(GameVariable)
+	fmt.Fprint(res,string(v))
+}
+/*  ==================================================
+	Method: POST
+	Handler: /switches/:id/:value
+	Results: NONE
+	Description: Sets the switch id to the value. 
+	Can only write to existing keys.
+	=================================================*/
+func SetSwitch(res http.ResponseWriter, req *http.Request, ps httprouter.Params){
+	if(len(GameSwitches) == 0){
+		data , err := ioutil.ReadFile("files/Switches.ini")
+		err2 := json.Unmarshal(data,&GameSwitches)
+		HandleError(res,err,err2)
+	}
+	id := ps.ByName("id")
+	value, err := strconv.ParseBool(ps.ByName("value")) 
+	for k,_ := range GameSwitches{
+		if(k==id){
+			GameSwitches[id] = value		
+			break
+		}
+	}
+	HandleError(res,err)
+}
+/*  ==================================================
+	Method: POST
+	Handler: /variables/:id/:value
+	Results: NONE
+	Description: Sets the variable id to the value. 
+	Can only write to existing keys.
+	=================================================*/
+func SetVariable(res http.ResponseWriter, req *http.Request, ps httprouter.Params){
+	if(len(GameVariable) == 0){
+		data , err := ioutil.ReadFile("files/Variables.ini")
+		err2 := json.Unmarshal(data,&GameVariable)
+		HandleError(res,err,err2)
+	}
+	id := ps.ByName("id")
+	value, err := strconv.ParseInt(ps.ByName("value"),10,64) 
+	for k,_ := range GameVariable{
+		if(k==id){
+			GameVariable[id] = value
+			break
+		}
+	}
+	GameVariable[id] = value
+	HandleError(res,err)
 }

@@ -26,3 +26,11 @@ func MakeActionList(x,y,mapid int64)(*[]Action){
 	}
 	return &t
 }
+
+func InitializeMaps(){
+	// Initialize Maps Container and MetaBlob
+	Maps = make(map[int64](map[string]Player))
+	MetaBlob = make(map[string](map[string](map[string](map[string](map[string](string))))))
+	GameSwitches = make(map[string]bool)
+	GameVariable = make(map[string]int64)
+}

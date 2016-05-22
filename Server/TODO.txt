@@ -1,0 +1,15 @@
+Link GameSwitches and GameVariable to store and retrieve information off of 
+datastore.
+Relevant Switches/Variables should be able to be configurable in a JSON file.
+
+4 API Calls
+GET-
+	/variable/
+		gives every variable as a JSON object.
+	/switches/
+		gives every switch as a JSON object.
+POST-
+	/variable/:id/:value
+		sends request to change that variable
+	/switches/:id/:value
+		sends request to change that switch
