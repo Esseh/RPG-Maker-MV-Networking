@@ -31,16 +31,27 @@ func init(){
 	/*=============
 	 MetaBlob stuff
 	==============*/
+	// Make an Entry in the MetaBlob
 	router.POST("/MetaBlob/Post/:owner/:purpose/:client/:primarykey/:secondarykey/:input",MetaBlobEntry)
+	// Delete an Entry in the MetaBlob
 	router.POST("/MetaBlob/Delete/:owner/:purpose/:client/:primarykey/:secondarykey",MetaBlobDeleteEntry)
+	// Delete All Entries Associated with a Primary Key
 	router.POST("/MetaBlob/Delete/:owner/:purpose/:client/:primarykey",MetaBlobDeletePrimary)
+	// Delete All Entries Associated with a Client
 	router.POST("/MetaBlob/Delete/:owner/:purpose/:client",MetaBlobDeleteClient)
+	// Delete All Entries Associated with a Purpose
 	router.POST("/MetaBlob/Delete/:owner/:purpose",MetaBlobDeletePurpose)
+	// Delete All Entries Associated with an Owner
 	router.POST("/MetaBlob/Delete/:owner",MetaBlobDeleteOwner)
+	// Get All Entries Associated with an Owner
 	router.GET("/MetaBlob/Get/:owner",BlobOwners)
+	// Get All Entries Associated with a Purpose
 	router.GET("/MetaBlob/Get/:owner/:purpose",BlobPurpose)
+	// Get All Entries Associated with a Client
 	router.GET("/MetaBlob/Get/:owner/:purpose/:client",BlobPrimaryKey)
+	// Get All Entries Associated with a Primary Key
 	router.GET("/MetaBlob/Get/:owner/:purpose/:client/:primarykey",BlobClient)
+	// 
 	router.GET("/MetaBlob/Get/:owner/:purpose/:client/:primarykey/:secondarykey",BlobSecondaryKey)
 	//==============
 	// Retrieves the Client Server Switch States
