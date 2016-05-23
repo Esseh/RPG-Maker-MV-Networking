@@ -32,6 +32,7 @@
 				// If parameters weren't specified default to an empty array.
 				if(res["parameters"] === undefined){ res["parameters"] = []; }
 				if(res["use_response" !== undefined]){
+					// 
 					res["parameters"] = [xhttp.responseText].concat(res["parameters"])
 				}
 				// If a callback was specified then execute it with optional parameters.
@@ -41,6 +42,7 @@
 	  }
 	  // Make the request.
 	  xhttp.open(req["method"], req["url"], req["async"]);
+	  // Send the request.
 	  xhttp.send(req["send"]);
 	};
 	
