@@ -35,7 +35,7 @@
 					res["parameters"] = [xhttp.responseText].concat(res["parameters"])
 				}
 				// If a callback was specified then execute it with optional parameters.
-				if(res["callback"]   !== undefined){ res["callback"].apply({},res["parameters"]); }
+				if(res["callback"]   !== undefined){ res["callback"].apply({},res["parameters"]); } 
 			}		
 		}
 	  }
